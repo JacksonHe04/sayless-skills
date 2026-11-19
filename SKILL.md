@@ -2,19 +2,28 @@
 name: sayless-skills
 description: Index and publish workflow for Sayless's public agent skills collection (github.com/JacksonHe04/sayless-skills). Use when someone asks which skills sayless publishes, how to install them via `npx skills add` or `gh skill install`, or how to add a new public skill here — including the mandatory pre-publish checklist for stripping private data, credentials, internal paths and customer content before anything goes public.
 license: MIT
+compatibility: No runtime required. The install commands need Node.js 22.20+ (for npx skills) or the GitHub CLI with its skill command.
+allowed-tools: Read Write Edit Bash Grep Glob
 metadata:
   author: JacksonHe04
+  version: "0.2.0"
   repo: "https://github.com/JacksonHe04/sayless-skills"
+  homepage: "https://sayless.inon.space"
+  language: en
+  audience: agent
+  updated: "2026-11-20"
 ---
 
 # Sayless Skills
 
-The public side of my agent skills: a small, curated collection published under the
-[Agent Skills](https://agentskills.io) open standard. A skill is just a directory with a
-`SKILL.md` — no build step, no package registry.
+The public half of my agent skills: a small, curated collection published under the
+[Agent Skills](https://agentskills.io) open standard. A skill is a directory with a `SKILL.md` —
+no build step, no package registry, no npm package.
 
-This repository is itself a skill (`sayless-skills`, the file you are reading) and a container
-for the public skills under `skills/`.
+This file is the **agent-facing** side: the index, the install commands, the add-a-skill workflow
+and the pre-publish checklist. Human-facing documentation (what this repo is, why it exists, how
+to browse it) lives in [README.md](README.md) — do not answer a reader's "what is this" question
+from this file alone.
 
 ## Layout
 
@@ -33,8 +42,8 @@ sayless-skills/
 
 ## Available skills
 
-None published yet. This file is the index — update the table below whenever a skill lands in
-`skills/`.
+None published yet. This table is the index — every skill under `skills/` gets a row here in the
+same commit that adds it.
 
 | Skill | What it does | Install |
 | --- | --- | --- |
@@ -42,13 +51,13 @@ None published yet. This file is the index — update the table below whenever a
 
 ## Installing
 
-Install everything into the current project:
+Everything into the current project:
 
 ```bash
 npx skills add JacksonHe04/sayless-skills
 ```
 
-Install one skill globally, no prompts:
+One skill, global, non-interactive:
 
 ```bash
 npx skills add JacksonHe04/sayless-skills --skill <skill-name> -g -a claude-code -y
@@ -57,26 +66,29 @@ npx skills add JacksonHe04/sayless-skills --skill <skill-name> -g -a claude-code
 Other entry points:
 
 ```bash
-npx skills add JacksonHe04/sayless-skills --list          # see what exists without installing
-npx skills add JacksonHe04/sayless-skills@v1.0.0          # pin to a release tag
-gh skill install JacksonHe04/sayless-skills <skill-name>  # GitHub CLI path
+npx skills add JacksonHe04/sayless-skills --list           # see what exists, install nothing
+npx skills add JacksonHe04/sayless-skills@v0.2.0           # pin to a release tag
+gh skill install JacksonHe04/sayless-skills <skill-name>   # GitHub CLI path
 ```
 
-The CLI symlinks skills into each agent's directory (`~/.claude/skills/`, `~/.agents/skills/`,
-`~/.codex/skills/`, …). Use `--copy` if a host does not follow symlinks.
+The CLI symlinks skills into each host's directory (`~/.claude/skills/`, `~/.agents/skills/`,
+`~/.codex/skills/`, …). Add `--copy` when a host does not follow symlinks.
 
 ## Adding a public skill
 
 1. Create `skills/<name>/SKILL.md`.
-2. `name` in the frontmatter must equal `<name>`: lowercase letters, digits and hyphens, 1–64
-   chars, no leading/trailing or doubled hyphens.
-3. `description` (≤1024 chars) must state both **what it does** and **when to use it** — it is the
-   only thing an agent sees before deciding to load the skill. Put the trigger words people
-   actually type in it.
-4. Keep `SKILL.md` under 500 lines. Move detail into `references/`, code into `scripts/`, and
-   reference those files with paths relative to the skill root, one level deep.
-5. Add the row to the table above.
-6. Run the pre-publish checklist below. It is not optional.
+2. `name` must equal `<name>`: lowercase letters, digits and hyphens, 1–64 chars, no leading,
+   trailing or doubled hyphens.
+3. `description` (≤1024 chars) must state both **what it does** and **when to use it**. It is the
+   only thing an agent sees before deciding to load the skill — put the words people actually type
+   in it.
+4. Fill the optional fields instead of the minimum: `license`, `compatibility` when the skill has
+   environment needs, and `metadata` with at least `author`, `version`, `updated`. `version` lives
+   inside `metadata` — the specification defines no top-level version field.
+5. Keep `SKILL.md` under 500 lines. Details go to `references/`, code to `scripts/`, referenced
+   with paths relative to the skill root, one level deep.
+6. Add the row to the table above.
+7. Run the checklist below. It is not optional.
 
 ## Pre-publish checklist
 
@@ -86,14 +98,14 @@ always the case. Public means public forever — a deleted commit still lives in
 Strip before committing:
 
 - **Credentials**: API keys, tokens, cookies, `~/.ssh` material, `.env` files, MCP config with
-  secrets, signed URLs. Nothing that authenticates should ever reach this repo.
+  secrets, signed URLs. Nothing that authenticates may reach this repo.
 - **Real data**: customer or company records, real names, phone numbers, emails, chat logs,
   database dumps, screenshots with real accounts. Replace with synthetic examples.
 - **Internal context**: private repo names and URLs, internal hostnames, ticket IDs, org names,
-  unreleased product names, salary/HR content, anything under an NDA.
+  unreleased product names, anything under an NDA.
 - **Local absolute paths**: `/Users/<name>/...`, `~/Codes/...`, machine-specific mounts. Use
-  placeholders like `<project>` or relative paths.
-- **Personal traces**: personal email addresses, calendars, notes-to-self that name real people.
+  placeholders such as `<project>` or relative paths.
+- **Personal traces**: personal email addresses, calendars, notes-to-self naming real people.
 
 Then grep for what you missed:
 
@@ -103,7 +115,7 @@ grep -rInE "(/Users/|~/[A-Z]|@[a-z0-9.-]+\.(com|cn|io))" .
 grep -rIn "TODO\|FIXME\|internal\|confidential" .
 ```
 
-Read every hit before dismissing it — a false positive takes ten seconds, a leaked token takes a
+Read every hit before dismissing it — a false positive costs ten seconds, a leaked token costs a
 weekend.
 
 ## Validating
@@ -116,11 +128,11 @@ skills-ref validate ./skills/<name>                # if skills-ref is installed
 
 ## Releasing
 
-Tag when a skill's behaviour changes in a way users should be able to pin:
+Bump `metadata.version` and tag the same commit, so the tag and the declared version agree:
 
 ```bash
-git tag v1.0.0 && git push origin v1.0.0
+git tag v0.2.0 && git push origin v0.2.0
 ```
 
-Tags are what `npx skills add owner/repo@v1.0.0` resolves to, so the tag must point at a commit
-where every skill in the collection is in a working state.
+`npx skills add owner/repo@v0.2.0` resolves to that tag, so it must point at a commit where every
+skill in the collection works.
