@@ -1,0 +1,11 @@
+# macOS
+.DS_Store
+
+# Local agent dirs, never part of the collection
+.claude/
+.agents/
+.codex/
+
+# Editor
+.vscode/
+.idea/
